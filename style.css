@@ -1,8 +1,36 @@
+/**
+ * Whack-a-Mole - Estilos del Juego
+ * ================================
+ * 
+ * Estructura de este archivo:
+ * 1. Reset y estilos base
+ * 2. Contenedor principal y tipografía
+ * 3. Paneles de UI
+ * 4. Formularios y botones
+ * 5. Información del juego
+ * 6. Tablero y hoyos
+ * 7. Topos y animaciones de golpe
+ * 8. Indicadores de dificultad
+ * 9. Panel de fin de juego
+ * 10. Ranking
+ * 11. Responsive
+ * 12. Sistema de bombas
+ * 13. Efectos especiales
+ */
+
+/* ==========================================================================
+   1. RESET Y ESTILOS BASE
+   ========================================================================== */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+/* ==========================================================================
+   2. CONTENEDOR PRINCIPAL Y TIPOGRAFÍA
+   ========================================================================== */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -30,6 +58,11 @@ h2 {
     text-align: center;
 }
 
+/* ==========================================================================
+   3. PANELES DE UI
+   Contenedores para configuración, juego y fin de partida.
+   ========================================================================== */
+
 .panel {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
@@ -38,9 +71,15 @@ h2 {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* Clase utilitaria para ocultar paneles */
 .hidden {
     display: none !important;
 }
+
+/* ==========================================================================
+   4. FORMULARIOS Y BOTONES
+   Configuración inicial del juego.
+   ========================================================================== */
 
 /* Configuración */
 .config-item {
@@ -115,6 +154,11 @@ h2 {
     background: #c82333;
 }
 
+/* ==========================================================================
+   5. INFORMACIÓN DEL JUEGO
+   Barra superior con jugador, puntaje, tiempo y dificultad.
+   ========================================================================== */
+
 /* Info del juego */
 .game-info {
     display: flex;
@@ -145,6 +189,11 @@ h2 {
     font-weight: bold;
 }
 
+/* ==========================================================================
+   6. TABLERO Y HOYOS
+   Grid 3x3 con cursores de martillo personalizados.
+   ========================================================================== */
+
 /* Tablero del juego */
 .game-board {
     display: grid;
@@ -154,35 +203,44 @@ h2 {
     background: #8B4513;
     border-radius: 15px;
     box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
-    cursor: url('hammer.svg') 5 5, crosshair;
+    /* Cursor personalizado: martillo con mano SVG */
+    cursor: url('hammer.svg') 8 8, crosshair;
 }
 
+/* Cursor de golpe activo */
 .game-board.hitting {
-    cursor: url('hammer-hit.svg') 5 5, crosshair;
+    cursor: url('hammer-hit.svg') 8 48, crosshair;
 }
 
+/* Hoyo individual - Contenedor del topo */
 .hole {
     position: relative;
     height: 120px;
     background: radial-gradient(ellipse at center, #3d2817 0%, #2a1a0f 100%);
     border-radius: 50%;
     overflow: hidden;
-    cursor: url('hammer.svg') 5 5, crosshair;
+    cursor: url('hammer.svg') 8 8, crosshair;
     box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.5);
     transition: transform 0.1s;
 }
 
 .hole:active {
-    cursor: url('hammer-hit.svg') 5 5, crosshair;
+    cursor: url('hammer-hit.svg') 8 48, crosshair;
 }
 
 .hole.hammer-down {
     transform: scale(0.95);
 }
 
+/* ==========================================================================
+   7. TOPOS Y ANIMACIONES DE GOLPE
+   Elemento mole con estados: oculto, visible (.up), golpeado (.hit).
+   ========================================================================== */
+
+/* Topo - Elemento que aparece/desaparece */
 .mole {
     position: absolute;
-    bottom: -100%;
+    bottom: -100%;  /* Oculto por defecto */
     left: 50%;
     transform: translateX(-50%);
     width: 80px;
@@ -194,21 +252,24 @@ h2 {
     user-select: none;
 }
 
+/* Topo visible - Activado cuando aparece */
 .mole.up {
     bottom: 10%;
 }
 
+/* Topo golpeado - Animación de desaparición */
 .mole.hit {
     animation: hit 0.3s ease-out;
 }
 
+/* Animación de golpe exitoso */
 @keyframes hit {
     0% { transform: translateX(-50%) scale(1); }
     50% { transform: translateX(-50%) scale(1.3) rotate(20deg); }
     100% { transform: translateX(-50%) scale(0); }
 }
 
-/* Efecto de golpe */
+/* Efecto de golpe - Muestra +10 puntos */
 .hole.whacked::after {
     content: '+10';
     position: absolute;
@@ -262,6 +323,11 @@ h2 {
     100% { opacity: 0; transform: scale(1.5) translateY(-20px); }
 }
 
+/* ==========================================================================
+   8. INDICADORES DE DIFICULTAD
+   Códigos de color: verde (easy), naranja (medium), rojo (hard), púrpura (insane).
+   ========================================================================== */
+
 /* Indicador de dificultad */
 #difficulty-indicator {
     display: inline-block;
@@ -272,10 +338,11 @@ h2 {
     color: white;
 }
 
-.difficulty-easy { background: #4caf50; }
-.difficulty-medium { background: #ff9800; }
-.difficulty-hard { background: #f44336; }
-.difficulty-insane { background: #9c27b0; animation: insanePulse 0.5s ease-in-out infinite; }
+/* Colores por nivel de dificultad */
+.difficulty-easy { background: #4caf50; }    /* Verde */
+.difficulty-medium { background: #ff9800; }  /* Naranja */
+.difficulty-hard { background: #f44336; }    /* Rojo */
+.difficulty-insane { background: #9c27b0; animation: insanePulse 0.5s ease-in-out infinite; } /* Púrpura pulsante */
 
 @keyframes insanePulse {
     0%, 100% { transform: scale(1); }
@@ -296,6 +363,11 @@ h2 {
     transition: transform 0.15s ease-out;
 }
 
+/* ==========================================================================
+   9. PANEL DE FIN DE JUEGO
+   Muestra puntaje final y razón del fin (tiempo o bomba).
+   ========================================================================== */
+
 /* Panel de fin del juego */
 .final-score {
     text-align: center;
@@ -312,6 +384,11 @@ h2 {
     font-weight: bold;
     color: #667eea;
 }
+
+/* ==========================================================================
+   10. RANKING
+   Tabla de los 10 mejores puntajes con localStorage.
+   ========================================================================== */
 
 /* Ranking */
 .ranking-panel {
@@ -347,6 +424,7 @@ h2 {
     background-color: #e9ecef;
 }
 
+/* Primer lugar del ranking - Destacado con gradiente dorado */
 #ranking-table tbody tr:first-child {
     background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
 }
@@ -358,8 +436,14 @@ h2 {
     font-style: italic;
 }
 
+/* ==========================================================================
+   11. RESPONSIVE
+   Adaptaciones para pantallas pequeñas (<600px).
+   ========================================================================== */
+
 /* Responsive */
 @media (max-width: 600px) {
+    /* Grid 2 columnas en móvil */
     .game-board {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -387,4 +471,134 @@ h2 {
     h1 {
         font-size: 1.8rem;
     }
+}
+
+/* ==========================================================================
+   12. SISTEMA DE BOMBAS
+   Estilos para bombas que terminan el juego instantáneamente.
+   ========================================================================== */
+
+/* Estilos de bomba */
+.mole.bomb {
+    animation: bombPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes bombPulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.1); }
+}
+
+/* ==========================================================================
+   13. EFECTOS ESPECIALES
+   Explosiones, sacudida de pantalla, mensajes de game over.
+   ========================================================================== */
+
+/* Efecto de explosión */
+.explosion-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff6b35 0%, #f7c531 50%, transparent 70%);
+    animation: explode 0.8s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+}
+
+@keyframes explode {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+/* Texto de explosión "BOOM" */
+.explosion-text {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff6b35;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    animation: boomText 0.8s ease-out forwards;
+    white-space: nowrap;
+    z-index: 101;
+}
+
+@keyframes boomText {
+    0% { transform: translateX(-50%) scale(0.5); opacity: 1; }
+    50% { transform: translateX(-50%) scale(1.3); }
+    100% { transform: translateX(-50%) translateY(-30px) scale(1); opacity: 0; }
+}
+
+/* Sacudida de pantalla - Se aplica a body cuando explota una bomba */
+.screen-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+    20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+/* Mensajes de Game Over - Dos variantes */
+.game-over-message {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+/* Mensaje de bomba - Rojo/naranja */
+.bomb-message {
+    background: linear-gradient(135deg, #ff6b35 0%, #f44336 100%);
+    color: white;
+    animation: bombMessagePulse 0.5s ease-in-out;
+}
+
+/* Mensaje de tiempo - Púrpura */
+.time-message {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+@keyframes bombMessagePulse {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Checkbox personalizado para activar/desactivar bombas */
+.config-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.config-checkbox input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+.config-checkbox label {
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bomb-icon {
+    font-size: 1.5rem;
 }

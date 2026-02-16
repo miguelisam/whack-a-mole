@@ -1,0 +1,63 @@
+# =============================================================================
+# Deploy Pipeline - Whack-a-Mole
+# =============================================================================
+# Este workflow despliega automáticamente a GitHub Pages cuando hay un merge
+# a la rama main.
+#
+# Requisitos:
+# 1. Habilitar GitHub Pages en Settings > Pages
+# 2. Seleccionar "Deploy from a branch" > gh-pages > / (root)
+# =============================================================================
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  
+  # Permite ejecutar manualmente desde Actions tab
+  workflow_dispatch:
+
+# Permisos necesarios
+permissions:
+  contents: write
+
+# Evitar deploys concurrentes
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ===========================================================================
+  # Job: Build and Deploy
+  # ===========================================================================
+  build-and-deploy:
+    name: 🏗️ Build and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm test
+
+      - name: 🏗️ Build project
+        run: npm run build
+
+      - name: 🚀 Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
