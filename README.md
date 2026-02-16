@@ -2,6 +2,10 @@
 
 Juego de arcade clásico implementado en HTML5, CSS3 y JavaScript vanilla.
 
+[![CI Pipeline](https://github.com/miguelisam/whack-a-mole/actions/workflows/ci.yml/badge.svg)](https://github.com/miguelisam/whack-a-mole/actions/workflows/ci.yml)
+[![Deploy](https://github.com/miguelisam/whack-a-mole/actions/workflows/deploy.yml/badge.svg)](https://github.com/miguelisam/whack-a-mole/actions/workflows/deploy.yml)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue)](https://miguelisam.github.io/whack-a-mole/)
+
 ![Gameplay](https://img.shields.io/badge/Gameplay-Arcade-brightgreen)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
@@ -47,14 +51,29 @@ La dificultad aumenta progresivamente durante el juego:
 
 ```
 whack-a-mole/
-├── index.html          # Estructura HTML del juego
-├── style.css           # Estilos y animaciones
-├── game.js             # Lógica del juego
-├── hammer.svg          # Icono del cursor (martillo)
-├── hammer-hit.svg      # Icono del cursor (martillo golpeando)
-├── README.md           # Este archivo
+├── index.html              # Estructura HTML del juego
+├── style.css               # Estilos y animaciones
+├── game.js                 # Lógica del juego
+├── hammer.svg              # Icono del cursor (martillo)
+├── hammer-hit.svg          # Icono del cursor (martillo golpeando)
+├── package.json            # Dependencias y scripts npm
+├── jest.config.js          # Configuración de tests
+├── README.md               # Este archivo
+├── .eslintrc.json          # Configuración ESLint (JS)
+├── .stylelintrc.json       # Configuración Stylelint (CSS)
+├── .htmlhintrc             # Configuración HTMLHint
+├── .gitignore              # Archivos ignorados por Git
+├── scripts/
+│   └── build.js            # Script de construcción
+├── tests/
+│   ├── setup.js            # Configuración de Jest
+│   └── game.test.js        # Tests unitarios
 └── .github/
-    ├── agents/         # Configuración de agentes IA
+    ├── workflows/
+    │   ├── ci.yml          # Pipeline de CI
+    │   ├── deploy.yml      # Pipeline de despliegue
+    │   └── pr-check.yml    # Validaciones de PR
+    ├── agents/             # Configuración de agentes IA
     └── copilot-instructions.md  # Convenciones GitFlow
 ```
 
@@ -63,12 +82,57 @@ whack-a-mole/
 ### Opción 1: Abrir directamente
 Simplemente abre `index.html` en tu navegador.
 
-### Opción 2: Servidor local (recomendado)
+### Opción 2: Servidor local con npm (recomendado)
 ```bash
-# Con Python 3
-python3 -m http.server 8080
+# Instalar dependencias
+npm install
 
-# Luego visita http://localhost:8080
+# Iniciar servidor de desarrollo
+npm start
+
+# Visita http://localhost:8080
+```
+
+### Opción 3: Servidor local con Python
+```bash
+python3 -m http.server 8080
+```
+
+## 🧪 Testing
+
+```bash
+# Ejecutar todos los tests
+npm test
+
+# Ejecutar tests en modo watch
+npm run test:watch
+
+# Ver cobertura de código
+npm test -- --coverage
+```
+
+## 🔍 Linting
+
+```bash
+# Ejecutar todos los linters
+npm run lint
+
+# Lint individual
+npm run lint:html    # HTMLHint
+npm run lint:css     # Stylelint
+npm run lint:js      # ESLint
+
+# Auto-fix (JS y CSS)
+npm run lint:fix
+```
+
+## 🏗️ Build
+
+```bash
+# Construir para producción
+npm run build
+
+# Output en dist/
 ```
 
 ## 🛠️ Arquitectura
@@ -155,6 +219,53 @@ Este proyecto sigue el flujo **GitFlow**. Ver [copilot-instructions.md](.github/
 2. Realiza tus cambios
 3. Crea un PR hacia `develop`
 4. Las ramas feature **no se eliminan** después del merge
+
+## ⚙️ CI/CD
+
+Este proyecto utiliza **GitHub Actions** para automatización:
+
+### Pipelines
+
+| Workflow | Trigger | Descripción |
+|----------|---------|-------------|
+| **CI Pipeline** | Push/PR a `main`, `develop`, `feature/*` | Lint, tests y build |
+| **Deploy** | Push a `main` | Despliegue a GitHub Pages |
+| **PR Checks** | PRs a `main`, `develop` | Validación de convenciones |
+
+### CI Pipeline (`ci.yml`)
+
+```
+🔍 Lint → 🧪 Test → 🏗️ Build → 🔒 Security
+```
+
+- **Lint**: Valida HTML (HTMLHint), CSS (Stylelint), JS (ESLint)
+- **Test**: Ejecuta tests unitarios con Jest
+- **Build**: Verifica que el proyecto compila correctamente
+- **Security**: Auditoría de dependencias npm
+
+### Deploy Pipeline (`deploy.yml`)
+
+Despliegue automático a GitHub Pages cuando se hace merge a `main`:
+
+1. Build del proyecto
+2. Ejecución de tests
+3. Upload de artefactos
+4. Deploy a GitHub Pages
+
+**URL de producción**: https://miguelisam.github.io/whack-a-mole/
+
+### PR Checks (`pr-check.yml`)
+
+- Valida que el título siga Conventional Commits
+- Verifica que features apunten a `develop`
+- Verifica que hotfixes apunten a `main`
+- Reporta tamaño del PR
+
+### Configurar GitHub Pages
+
+1. Ve a **Settings > Pages**
+2. En **Source**, selecciona **GitHub Actions**
+3. El primer deploy se realizará automáticamente
 
 ## 📝 Licencia
 

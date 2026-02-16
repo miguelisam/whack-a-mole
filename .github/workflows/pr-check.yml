@@ -1,0 +1,125 @@
+# =============================================================================
+# PR Check Pipeline - Whack-a-Mole
+# =============================================================================
+# Validaciones específicas para Pull Requests.
+# Verifica que el PR sigue las convenciones del proyecto.
+# =============================================================================
+
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types:
+      - opened
+      - edited
+      - synchronize
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ===========================================================================
+  # Job: PR Title - Verificar formato del título
+  # ===========================================================================
+  pr-title:
+    name: 📝 Validate PR Title
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📝 Check PR title follows Conventional Commits
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            test
+            chore
+            perf
+            ci
+            build
+            revert
+          requireScope: false
+          subjectPattern: ^.{1,80}$
+          subjectPatternError: |
+            El título del PR debe tener máximo 80 caracteres.
+            Formato: <type>: <description>
+            Ejemplo: feat: add new mole animation
+
+  # ===========================================================================
+  # Job: Branch Check - Verificar rama base
+  # ===========================================================================
+  branch-check:
+    name: 🌿 Validate Branch
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🌿 Check feature branches target develop
+        if: startsWith(github.head_ref, 'feature/')
+        run: |
+          if [ "${{ github.base_ref }}" != "develop" ]; then
+            echo "❌ Error: Las ramas feature/* deben apuntar a develop, no a ${{ github.base_ref }}"
+            echo "Por favor, cambia la base del PR a develop."
+            exit 1
+          fi
+          echo "✅ La rama feature apunta correctamente a develop"
+
+      - name: 🌿 Check hotfix branches target main
+        if: startsWith(github.head_ref, 'hotfix/')
+        run: |
+          if [ "${{ github.base_ref }}" != "main" ]; then
+            echo "❌ Error: Las ramas hotfix/* deben apuntar a main, no a ${{ github.base_ref }}"
+            echo "Por favor, cambia la base del PR a main."
+            exit 1
+          fi
+          echo "✅ La rama hotfix apunta correctamente a main"
+
+      - name: 🌿 Check release branches target main
+        if: startsWith(github.head_ref, 'release/')
+        run: |
+          if [ "${{ github.base_ref }}" != "main" ]; then
+            echo "❌ Error: Las ramas release/* deben apuntar a main, no a ${{ github.base_ref }}"
+            echo "Por favor, cambia la base del PR a main."
+            exit 1
+          fi
+          echo "✅ La rama release apunta correctamente a main"
+
+  # ===========================================================================
+  # Job: Size Check - Verificar tamaño del PR
+  # ===========================================================================
+  size-check:
+    name: 📏 Check PR Size
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📏 Check PR size
+        run: |
+          # Obtener estadísticas del PR
+          ADDITIONS=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$1} END {print sum}')
+          DELETIONS=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$2} END {print sum}')
+          TOTAL=$((ADDITIONS + DELETIONS))
+          
+          echo "📊 Estadísticas del PR:"
+          echo "  ➕ Líneas añadidas: $ADDITIONS"
+          echo "  ➖ Líneas eliminadas: $DELETIONS"
+          echo "  📝 Total de cambios: $TOTAL"
+          
+          # Advertencia si el PR es muy grande
+          if [ "$TOTAL" -gt 500 ]; then
+            echo ""
+            echo "⚠️ Advertencia: Este PR tiene más de 500 líneas de cambios."
+            echo "Considera dividirlo en PRs más pequeños para facilitar la revisión."
+          fi
