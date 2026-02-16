@@ -1,39 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <!-- Sombra -->
-  <ellipse cx="18" cy="30" rx="8" ry="2" fill="#000" opacity="0.2"/>
-  
-  <!-- Mango del martillo -->
-  <rect x="13" y="14" width="6" height="18" rx="1.5" fill="url(#mango)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
   <defs>
+    <!-- Gradiente para el mango de madera -->
     <linearGradient id="mango" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#5D3A1A"/>
       <stop offset="30%" style="stop-color:#8B4513"/>
       <stop offset="70%" style="stop-color:#A0522D"/>
       <stop offset="100%" style="stop-color:#6B4423"/>
     </linearGradient>
-  </defs>
-  
-  <!-- Cabeza del martillo -->
-  <rect x="2" y="2" width="28" height="13" rx="2" fill="url(#metal)"/>
-  <defs>
+    <!-- Gradiente metálico para la cabeza -->
     <linearGradient id="metal" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#9CA3AF"/>
-      <stop offset="50%" style="stop-color:#6B7280"/>
-      <stop offset="100%" style="stop-color:#4B5563"/>
+      <stop offset="0%" style="stop-color:#C0C0C0"/>
+      <stop offset="30%" style="stop-color:#A8A8A8"/>
+      <stop offset="70%" style="stop-color:#808080"/>
+      <stop offset="100%" style="stop-color:#606060"/>
     </linearGradient>
+    <!-- Gradiente para la piel de la mano -->
+    <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE0BD"/>
+      <stop offset="50%" style="stop-color:#FFCD94"/>
+      <stop offset="100%" style="stop-color:#E8B88A"/>
+    </linearGradient>
+    <!-- Sombra -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="2" stdDeviation="1" flood-opacity="0.3"/>
+    </filter>
   </defs>
   
-  <!-- Borde superior brillante -->
-  <rect x="3" y="3" width="26" height="2" rx="1" fill="#D1D5DB"/>
+  <!-- Grupo del martillo -->
+  <g filter="url(#shadow)" transform="rotate(-15 24 24)">
+    <!-- Mango del martillo -->
+    <rect x="20" y="14" width="8" height="32" rx="2" fill="url(#mango)"/>
+    <rect x="21" y="15" width="2" height="28" rx="1" fill="#9B6B43" opacity="0.5"/>
+    
+    <!-- Cabeza del martillo -->
+    <rect x="4" y="2" width="40" height="14" rx="3" fill="url(#metal)"/>
+    
+    <!-- Detalles de la cabeza -->
+    <rect x="5" y="3" width="38" height="3" rx="1" fill="#E0E0E0"/>
+    <rect x="5" y="12" width="38" height="2" fill="#505050"/>
+    
+    <!-- Caras laterales (zona de golpe) -->
+    <rect x="0" y="3" width="7" height="12" rx="2" fill="#707070"/>
+    <rect x="41" y="3" width="7" height="12" rx="2" fill="#707070"/>
+    
+    <!-- Brillos metálicos -->
+    <rect x="2" y="5" width="2" height="6" rx="1" fill="#B0B0B0"/>
+    <rect x="44" y="5" width="2" height="6" rx="1" fill="#B0B0B0"/>
+  </g>
   
-  <!-- Línea de separación -->
-  <rect x="3" y="11" width="26" height="2" fill="#374151"/>
-  
-  <!-- Caras laterales del martillo -->
-  <rect x="0" y="3" width="5" height="11" rx="1" fill="#71797E"/>
-  <rect x="27" y="3" width="5" height="11" rx="1" fill="#71797E"/>
-  
-  <!-- Brillo lateral -->
-  <rect x="1" y="4" width="1.5" height="6" fill="#9CA3AF" rx="0.5"/>
-  <rect x="28" y="4" width="1.5" height="6" fill="#9CA3AF" rx="0.5"/>
+  <!-- Mano sosteniendo el martillo -->
+  <g transform="translate(10, 30)">
+    <!-- Palma de la mano -->
+    <ellipse cx="14" cy="10" rx="12" ry="8" fill="url(#skin)"/>
+    
+    <!-- Dedos agarrando el mango -->
+    <!-- Dedo índice -->
+    <rect x="8" y="2" width="6" height="10" rx="3" fill="url(#skin)"/>
+    <!-- Dedo medio -->
+    <rect x="14" y="0" width="6" height="12" rx="3" fill="url(#skin)"/>
+    <!-- Dedo anular -->
+    <rect x="20" y="2" width="5" height="10" rx="2.5" fill="url(#skin)"/>
+    <!-- Dedo meñique -->
+    <rect x="25" y="5" width="4" height="8" rx="2" fill="url(#skin)"/>
+    
+    <!-- Pulgar -->
+    <ellipse cx="5" cy="8" rx="5" ry="4" fill="url(#skin)" transform="rotate(-30 5 8)"/>
+    
+    <!-- Nudillos (líneas) -->
+    <line x1="10" y1="8" x2="12" y2="8" stroke="#D4A574" stroke-width="0.5" opacity="0.5"/>
+    <line x1="16" y1="7" x2="18" y2="7" stroke="#D4A574" stroke-width="0.5" opacity="0.5"/>
+    <line x1="22" y1="8" x2="24" y2="8" stroke="#D4A574" stroke-width="0.5" opacity="0.5"/>
+  </g>
 </svg>
