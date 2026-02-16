@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Mole</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>🔨 Whack-a-Mole 🔨</h1>
+        
+        <!-- Configuración del juego -->
+        <div id="config-panel" class="panel">
+            <h2>Configuración</h2>
+            <div class="config-item">
+                <label for="player-name">Nombre del jugador:</label>
+                <input type="text" id="player-name" placeholder="Ingresa tu nombre" maxlength="20">
+            </div>
+            <div class="config-item">
+                <label for="game-duration">Duración del juego:</label>
+                <select id="game-duration">
+                    <option value="60">1 minuto</option>
+                    <option value="120">2 minutos</option>
+                    <option value="180" selected>3 minutos</option>
+                    <option value="240">4 minutos</option>
+                    <option value="300">5 minutos</option>
+                </select>
+            </div>
+            <button id="start-btn" class="btn-primary">¡Iniciar Juego!</button>
+        </div>
+
+        <!-- Panel de juego -->
+        <div id="game-panel" class="panel hidden">
+            <div class="game-info">
+                <div class="info-item">
+                    <span>Jugador:</span>
+                    <span id="current-player">-</span>
+                </div>
+                <div class="info-item">
+                    <span>Puntaje:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="info-item">
+                    <span>Tiempo:</span>
+                    <span id="timer">0:00</span>
+                </div>
+                <div class="info-item">
+                    <span>Dificultad:</span>
+                    <span id="difficulty-indicator" class="difficulty-indicator difficulty-easy">😊 Fácil</span>
+                </div>
+            </div>
+
+            <div class="game-board" id="game-board">
+                <!-- Los hoyos se generan dinámicamente -->
+            </div>
+
+            <button id="end-btn" class="btn-secondary">Terminar Juego</button>
+        </div>
+
+        <!-- Panel de fin de juego -->
+        <div id="game-over-panel" class="panel hidden">
+            <h2>¡Juego Terminado!</h2>
+            <div class="final-score">
+                <p>Jugador: <span id="final-player">-</span></p>
+                <p>Puntaje Final: <span id="final-score">0</span></p>
+            </div>
+            <button id="play-again-btn" class="btn-primary">Jugar de Nuevo</button>
+        </div>
+
+        <!-- Panel de ranking -->
+        <div class="ranking-panel">
+            <h2>🏆 Ranking 🏆</h2>
+            <table id="ranking-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Jugador</th>
+                        <th>Puntaje</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <!-- Se llena dinámicamente -->
+                </tbody>
+            </table>
+            <button id="clear-ranking-btn" class="btn-danger">Limpiar Ranking</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
