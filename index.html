@@ -27,6 +27,13 @@
                     <option value="300">5 minutos</option>
                 </select>
             </div>
+            <div class="config-checkbox">
+                <input type="checkbox" id="bombs-enabled" checked>
+                <label for="bombs-enabled">
+                    <span class="bomb-icon">💣</span>
+                    Activar bombas (terminan el juego si las golpeas)
+                </label>
+            </div>
             <button id="start-btn" class="btn-primary">¡Iniciar Juego!</button>
         </div>
 
@@ -61,6 +68,9 @@
         <!-- Panel de fin de juego -->
         <div id="game-over-panel" class="panel hidden">
             <h2>¡Juego Terminado!</h2>
+            <div id="game-over-message" class="game-over-message time-message">
+                ⏱️ ¡Tiempo terminado!
+            </div>
             <div class="final-score">
                 <p>Jugador: <span id="final-player">-</span></p>
                 <p>Puntaje Final: <span id="final-score">0</span></p>

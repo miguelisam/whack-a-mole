@@ -4,19 +4,23 @@ const gameState = {
     timeLeft: 0,
     isPlaying: false,
     activeMoles: new Set(), // Topos activos (múltiples)
+    activeBombs: new Set(), // Bombas activas
     moleTimeouts: new Map(), // Timeouts individuales de cada topo
     gameInterval: null,
     spawnInterval: null,
     playerName: '',
     gameDuration: 180,
     difficulty: 'easy',
+    bombsEnabled: true, // Opción de bombas activadas
+    gameOverReason: 'time', // 'time' o 'bomb'
     // Configuración de dificultad dinámica
     config: {
         baseSpawnRate: 1200,    // Tiempo entre apariciones (ms)
         baseMoleTime: 1800,     // Tiempo que el topo permanece visible (ms)
         minMoleTime: 400,       // Tiempo mínimo de permanencia
         minSpawnRate: 300,      // Spawn rate mínimo
-        maxSimultaneousMoles: 1 // Topos simultáneos máximos
+        maxSimultaneousMoles: 1, // Topos simultáneos máximos
+        bombChance: 0.15        // Probabilidad de bomba (15%)
     }
 };
 
@@ -27,6 +31,7 @@ const elements = {
     gameOverPanel: document.getElementById('game-over-panel'),
     playerNameInput: document.getElementById('player-name'),
     gameDurationSelect: document.getElementById('game-duration'),
+    bombsCheckbox: document.getElementById('bombs-enabled'),
     startBtn: document.getElementById('start-btn'),
     endBtn: document.getElementById('end-btn'),
     playAgainBtn: document.getElementById('play-again-btn'),
@@ -36,6 +41,7 @@ const elements = {
     timerDisplay: document.getElementById('timer'),
     finalPlayer: document.getElementById('final-player'),
     finalScore: document.getElementById('final-score'),
+    gameOverMessage: document.getElementById('game-over-message'),
     gameBoard: document.getElementById('game-board'),
     rankingBody: document.getElementById('ranking-body')
 };
@@ -92,7 +98,10 @@ function startGame() {
     gameState.score = 0;
     gameState.isPlaying = true;
     gameState.activeMoles.clear();
+    gameState.activeBombs.clear();
     gameState.moleTimeouts.clear();
+    gameState.gameOverReason = 'time';
+    gameState.bombsEnabled = elements.bombsCheckbox ? elements.bombsCheckbox.checked : true;
     
     // Resetear configuración de dificultad
     gameState.config = {
@@ -100,7 +109,8 @@ function startGame() {
         baseMoleTime: 1800,
         minMoleTime: 400,
         minSpawnRate: 300,
-        maxSimultaneousMoles: 1
+        maxSimultaneousMoles: 1,
+        bombChance: 0.15
     };
     gameState.difficulty = 'easy';
     
@@ -143,24 +153,28 @@ function updateDifficulty() {
         gameState.config.maxSimultaneousMoles = 1;
         gameState.config.baseMoleTime = 1800;
         gameState.config.baseSpawnRate = 1200;
+        gameState.config.bombChance = 0.10; // 10% de bombas
     } else if (progressRatio < 0.5) {
         // Medio (25-50%)
         gameState.difficulty = 'medium';
         gameState.config.maxSimultaneousMoles = 2;
         gameState.config.baseMoleTime = 1400;
         gameState.config.baseSpawnRate = 900;
+        gameState.config.bombChance = 0.15; // 15% de bombas
     } else if (progressRatio < 0.75) {
         // Difícil (50-75%)
         gameState.difficulty = 'hard';
         gameState.config.maxSimultaneousMoles = 3;
         gameState.config.baseMoleTime = 1000;
         gameState.config.baseSpawnRate = 600;
+        gameState.config.bombChance = 0.20; // 20% de bombas
     } else {
         // Insano (75-100%)
         gameState.difficulty = 'insane';
         gameState.config.maxSimultaneousMoles = 4;
         gameState.config.baseMoleTime = 700;
         gameState.config.baseSpawnRate = 400;
+        gameState.config.bombChance = 0.25; // 25% de bombas
     }
     
     // Añadir variación adicional basada en progreso exacto
@@ -219,11 +233,11 @@ function startMoleSpawning() {
 function showRandomMole() {
     if (!gameState.isPlaying) return;
     
-    // Obtener hoyos disponibles (sin topo activo)
+    // Obtener hoyos disponibles (sin topo activo ni bomba)
     const holes = document.querySelectorAll('.hole');
     const availableHoles = Array.from(holes).filter(hole => {
         const index = parseInt(hole.dataset.index);
-        return !gameState.activeMoles.has(index);
+        return !gameState.activeMoles.has(index) && !gameState.activeBombs.has(index);
     });
     
     if (availableHoles.length === 0) return;
@@ -233,9 +247,21 @@ function showRandomMole() {
     const holeIndex = parseInt(randomHole.dataset.index);
     const mole = randomHole.querySelector('.mole');
     
-    // Mostrar topo
-    mole.classList.add('up');
-    gameState.activeMoles.add(holeIndex);
+    // Decidir si mostrar bomba o topo
+    const showBomb = gameState.bombsEnabled && Math.random() < gameState.config.bombChance;
+    
+    if (showBomb) {
+        // Mostrar bomba
+        mole.textContent = '💣';
+        mole.classList.add('up', 'bomb');
+        gameState.activeBombs.add(holeIndex);
+    } else {
+        // Mostrar topo
+        mole.textContent = '🐹';
+        mole.classList.add('up');
+        mole.classList.remove('bomb');
+        gameState.activeMoles.add(holeIndex);
+    }
     
     // Calcular tiempo de permanencia con variación
     const variation = (Math.random() - 0.5) * 400;
@@ -244,12 +270,34 @@ function showRandomMole() {
         gameState.config.baseMoleTime + variation
     );
     
-    // Programar ocultación del topo
+    // Programar ocultación
     const timeout = setTimeout(() => {
-        hideMole(holeIndex);
+        if (showBomb) {
+            hideBomb(holeIndex);
+        } else {
+            hideMole(holeIndex);
+        }
     }, moleTime);
     
     gameState.moleTimeouts.set(holeIndex, timeout);
+}
+
+// Ocultar bomba específica
+function hideBomb(holeIndex) {
+    const hole = document.querySelector(`.hole[data-index="${holeIndex}"]`);
+    if (!hole) return;
+    
+    const mole = hole.querySelector('.mole');
+    mole.classList.remove('up', 'bomb', 'hit');
+    mole.textContent = '🐹';
+    
+    gameState.activeBombs.delete(holeIndex);
+    
+    const timeout = gameState.moleTimeouts.get(holeIndex);
+    if (timeout) {
+        clearTimeout(timeout);
+        gameState.moleTimeouts.delete(holeIndex);
+    }
 }
 
 // Ocultar topo específico
@@ -275,7 +323,11 @@ function hideAllMoles() {
     gameState.activeMoles.forEach(index => {
         hideMole(index);
     });
+    gameState.activeBombs.forEach(index => {
+        hideBomb(index);
+    });
     gameState.activeMoles.clear();
+    gameState.activeBombs.clear();
     gameState.moleTimeouts.forEach(timeout => clearTimeout(timeout));
     gameState.moleTimeouts.clear();
 }
@@ -297,8 +349,21 @@ function handleWhack(event) {
         hole.classList.remove('hammer-down');
     }, 100);
     
+    // Verificar si golpeó una bomba
+    if (mole.classList.contains('up') && mole.classList.contains('bomb') && !mole.classList.contains('hit')) {
+        // ¡Golpeó una bomba! Terminar juego
+        mole.classList.add('hit');
+        createExplosionEffect(hole);
+        gameState.gameOverReason = 'bomb';
+        
+        setTimeout(() => {
+            endGame();
+        }, 800);
+        return;
+    }
+    
     // Solo contar si el topo está visible y no ha sido golpeado
-    if (mole.classList.contains('up') && !mole.classList.contains('hit')) {
+    if (mole.classList.contains('up') && !mole.classList.contains('hit') && !mole.classList.contains('bomb')) {
         // Marcar como golpeado
         mole.classList.add('hit');
         hole.classList.add('whacked');
@@ -325,6 +390,30 @@ function handleWhack(event) {
         // Efecto de golpe fallido
         createMissEffect(hole);
     }
+}
+
+// Crear efecto de explosión (bomba)
+function createExplosionEffect(hole) {
+    // Fondo de explosión
+    const explosion = document.createElement('div');
+    explosion.className = 'explosion-effect';
+    hole.appendChild(explosion);
+    
+    // Texto de explosión
+    const boom = document.createElement('div');
+    boom.className = 'explosion-text';
+    boom.textContent = '💥 BOOM! 💥';
+    hole.appendChild(boom);
+    
+    // Sacudir la pantalla
+    document.body.classList.add('screen-shake');
+    
+    // Limpiar después de la animación
+    setTimeout(() => {
+        explosion.remove();
+        boom.remove();
+        document.body.classList.remove('screen-shake');
+    }, 800);
 }
 
 // Crear efecto de impacto exitoso
@@ -393,6 +482,17 @@ function endGame() {
     // Mostrar panel de fin de juego
     elements.finalPlayer.textContent = gameState.playerName;
     elements.finalScore.textContent = gameState.score;
+    
+    // Mostrar mensaje según razón del fin del juego
+    if (elements.gameOverMessage) {
+        if (gameState.gameOverReason === 'bomb') {
+            elements.gameOverMessage.textContent = '💣 ¡Golpeaste una bomba! 💥';
+            elements.gameOverMessage.className = 'game-over-message bomb-message';
+        } else {
+            elements.gameOverMessage.textContent = '⏱️ ¡Tiempo terminado!';
+            elements.gameOverMessage.className = 'game-over-message time-message';
+        }
+    }
     
     elements.gamePanel.classList.add('hidden');
     elements.gameOverPanel.classList.remove('hidden');
