@@ -47,6 +47,7 @@ jobs:
             ci
             build
             revert
+            release
           requireScope: false
           subjectPattern: ^.{1,80}$
           subjectPatternError: |
