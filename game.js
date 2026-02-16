@@ -2,7 +2,125 @@
  * @fileoverview Whack-a-Mole - Juego arcade con dificultad progresiva y sistema de bombas.
  * @author miguelisam
  * @version 1.0.0
+ * @module game
  */
+
+/* ==========================================================================
+   FUNCIONES UTILITARIAS PURAS (TESTEABLES)
+   Estas funciones no dependen del DOM ni del estado global.
+   ========================================================================== */
+
+/**
+ * Formatea segundos a formato MM:SS.
+ * 
+ * @param {number} seconds - Segundos a formatear
+ * @returns {string} Tiempo formateado como "M:SS"
+ * @example
+ * formatTime(125) // "2:05"
+ */
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Calcula la dificultad según el progreso del juego.
+ * 
+ * @param {number} progressRatio - Ratio de progreso (0 a 1)
+ * @returns {'easy'|'medium'|'hard'|'insane'} Nivel de dificultad
+ */
+function getDifficulty(progressRatio) {
+    if (progressRatio < 0.25) return 'easy';
+    if (progressRatio < 0.5) return 'medium';
+    if (progressRatio < 0.75) return 'hard';
+    return 'insane';
+}
+
+/**
+ * Obtiene la probabilidad de bomba según dificultad.
+ * 
+ * @param {'easy'|'medium'|'hard'|'insane'} difficulty - Nivel de dificultad
+ * @returns {number} Probabilidad (0.10 a 0.25)
+ */
+function getBombChance(difficulty) {
+    const chances = {
+        easy: 0.10,
+        medium: 0.15,
+        hard: 0.20,
+        insane: 0.25
+    };
+    return chances[difficulty] || 0.15;
+}
+
+/**
+ * Obtiene el máximo de topos simultáneos según dificultad.
+ * 
+ * @param {'easy'|'medium'|'hard'|'insane'} difficulty - Nivel de dificultad
+ * @returns {number} Cantidad máxima (1 a 4)
+ */
+function getMaxMoles(difficulty) {
+    const maxMoles = {
+        easy: 1,
+        medium: 2,
+        hard: 3,
+        insane: 4
+    };
+    return maxMoles[difficulty] || 1;
+}
+
+/**
+ * Valida que el nombre del jugador no esté vacío.
+ * 
+ * @param {string} name - Nombre a validar
+ * @returns {boolean} true si es válido
+ */
+function validatePlayerName(name) {
+    return !!(name && name.trim().length > 0);
+}
+
+/**
+ * Valida que la duración esté en el rango permitido.
+ * 
+ * @param {number} seconds - Duración en segundos
+ * @returns {boolean} true si es válida (60-300 segundos)
+ */
+function validateDuration(seconds) {
+    const validDurations = [60, 120, 180, 240, 300];
+    return validDurations.includes(seconds);
+}
+
+/**
+ * Calcula puntos por golpe según dificultad.
+ * 
+ * @param {'easy'|'medium'|'hard'|'insane'} difficulty - Nivel de dificultad
+ * @returns {number} Puntos por golpe
+ */
+function getPointsPerHit(difficulty) {
+    const points = {
+        easy: 10,
+        medium: 15,
+        hard: 20,
+        insane: 30
+    };
+    return points[difficulty] || 10;
+}
+
+/**
+ * Ordena scores de mayor a menor y limita a top 10.
+ * 
+ * @param {Array<{player: string, score: number}>} scores - Array de scores
+ * @returns {Array<{player: string, score: number}>} Top 10 ordenado
+ */
+function sortAndLimitScores(scores) {
+    return [...scores]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+}
+
+/* ==========================================================================
+   FIN FUNCIONES UTILITARIAS - INICIO CÓDIGO DEL JUEGO
+   ========================================================================== */
 
 /**
  * Estado global del juego.
@@ -790,3 +908,25 @@ function playSound(type) {
     audio.play().catch(() => {});
 }
 */
+
+/* ==========================================================================
+   EXPORTS - Compatible con Node.js (Jest) y navegador
+   ========================================================================== */
+
+// Exportar funciones para testing (solo en entorno Node.js)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        // Funciones utilitarias puras
+        formatTime,
+        getDifficulty,
+        getBombChance,
+        getMaxMoles,
+        validatePlayerName,
+        validateDuration,
+        getPointsPerHit,
+        sortAndLimitScores,
+        // Funciones del juego (requieren DOM)
+        escapeHTML,
+        getScores
+    };
+}

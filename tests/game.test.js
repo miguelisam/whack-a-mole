@@ -4,6 +4,20 @@
  * @jest-environment jsdom
  */
 
+// Importar funciones del módulo game.js
+const {
+    formatTime,
+    getDifficulty,
+    getBombChance,
+    getMaxMoles,
+    validatePlayerName,
+    validateDuration,
+    getPointsPerHit,
+    sortAndLimitScores,
+    escapeHTML,
+    getScores
+} = require('../game.js');
+
 describe('Whack-a-Mole Game', () => {
     // Cargar el HTML antes de cada test
     beforeEach(() => {
@@ -42,13 +56,6 @@ describe('Whack-a-Mole Game', () => {
 
     describe('Funciones utilitarias', () => {
         test('escapeHTML debe escapar caracteres especiales', () => {
-            // Función inline para test (simula la del juego)
-            function escapeHTML(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
-
             expect(escapeHTML('<script>')).toBe('&lt;script&gt;');
             expect(escapeHTML('Hello & World')).toBe('Hello &amp; World');
             expect(escapeHTML('"quoted"')).toBe('"quoted"');
@@ -56,12 +63,6 @@ describe('Whack-a-Mole Game', () => {
         });
 
         test('formatTime debe mostrar tiempo correctamente', () => {
-            function formatTime(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return `${minutes}:${secs.toString().padStart(2, '0')}`;
-            }
-
             expect(formatTime(0)).toBe('0:00');
             expect(formatTime(59)).toBe('0:59');
             expect(formatTime(60)).toBe('1:00');
@@ -72,20 +73,10 @@ describe('Whack-a-Mole Game', () => {
 
     describe('localStorage - Ranking', () => {
         test('getScores debe retornar array vacío si no hay datos', () => {
-            function getScores() {
-                const scoresJSON = localStorage.getItem('whackamole_scores');
-                return scoresJSON ? JSON.parse(scoresJSON) : [];
-            }
-
             expect(getScores()).toEqual([]);
         });
 
         test('getScores debe retornar scores guardados', () => {
-            function getScores() {
-                const scoresJSON = localStorage.getItem('whackamole_scores');
-                return scoresJSON ? JSON.parse(scoresJSON) : [];
-            }
-
             const testScores = [
                 { player: 'Test', score: 100, date: '16/02/2026' }
             ];
@@ -99,24 +90,13 @@ describe('Whack-a-Mole Game', () => {
                 { player: 'Test', score: 100 }
             ]));
 
-            function clearRanking() {
-                localStorage.removeItem('whackamole_scores');
-            }
-
-            clearRanking();
+            localStorage.removeItem('whackamole_scores');
             expect(localStorage.getItem('whackamole_scores')).toBeNull();
         });
     });
 
     describe('Configuración de dificultad', () => {
         test('calcular dificultad según progreso', () => {
-            function getDifficulty(progressRatio) {
-                if (progressRatio < 0.25) return 'easy';
-                if (progressRatio < 0.5) return 'medium';
-                if (progressRatio < 0.75) return 'hard';
-                return 'insane';
-            }
-
             expect(getDifficulty(0)).toBe('easy');
             expect(getDifficulty(0.1)).toBe('easy');
             expect(getDifficulty(0.25)).toBe('medium');
@@ -126,16 +106,6 @@ describe('Whack-a-Mole Game', () => {
         });
 
         test('configuración de bombas según dificultad', () => {
-            function getBombChance(difficulty) {
-                const chances = {
-                    easy: 0.10,
-                    medium: 0.15,
-                    hard: 0.20,
-                    insane: 0.25
-                };
-                return chances[difficulty];
-            }
-
             expect(getBombChance('easy')).toBe(0.10);
             expect(getBombChance('medium')).toBe(0.15);
             expect(getBombChance('hard')).toBe(0.20);
@@ -143,16 +113,6 @@ describe('Whack-a-Mole Game', () => {
         });
 
         test('topos simultáneos según dificultad', () => {
-            function getMaxMoles(difficulty) {
-                const maxMoles = {
-                    easy: 1,
-                    medium: 2,
-                    hard: 3,
-                    insane: 4
-                };
-                return maxMoles[difficulty];
-            }
-
             expect(getMaxMoles('easy')).toBe(1);
             expect(getMaxMoles('medium')).toBe(2);
             expect(getMaxMoles('hard')).toBe(3);
@@ -161,16 +121,11 @@ describe('Whack-a-Mole Game', () => {
     });
 
     describe('Sistema de puntuación', () => {
-        test('puntos por golpe exitoso', () => {
-            const POINTS_PER_HIT = 10;
-            let score = 0;
-            
-            // Simular 5 golpes
-            for (let i = 0; i < 5; i++) {
-                score += POINTS_PER_HIT;
-            }
-            
-            expect(score).toBe(50);
+        test('puntos por golpe según dificultad', () => {
+            expect(getPointsPerHit('easy')).toBe(10);
+            expect(getPointsPerHit('medium')).toBe(15);
+            expect(getPointsPerHit('hard')).toBe(20);
+            expect(getPointsPerHit('insane')).toBe(30);
         });
 
         test('ordenar scores de mayor a menor', () => {
@@ -180,11 +135,11 @@ describe('Whack-a-Mole Game', () => {
                 { player: 'C', score: 75 }
             ];
 
-            scores.sort((a, b) => b.score - a.score);
+            const sorted = sortAndLimitScores(scores);
 
-            expect(scores[0].player).toBe('B');
-            expect(scores[1].player).toBe('C');
-            expect(scores[2].player).toBe('A');
+            expect(sorted[0].player).toBe('B');
+            expect(sorted[1].player).toBe('C');
+            expect(sorted[2].player).toBe('A');
         });
 
         test('mantener solo top 10 scores', () => {
@@ -193,9 +148,7 @@ describe('Whack-a-Mole Game', () => {
                 score: i * 10
             }));
 
-            const topScores = scores
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 10);
+            const topScores = sortAndLimitScores(scores);
 
             expect(topScores.length).toBe(10);
             expect(topScores[0].score).toBe(140);
@@ -205,10 +158,6 @@ describe('Whack-a-Mole Game', () => {
 
     describe('Validación de entrada', () => {
         test('nombre de jugador no puede estar vacío', () => {
-            function validatePlayerName(name) {
-                return !!(name && name.trim().length > 0);
-            }
-
             expect(validatePlayerName('')).toBe(false);
             expect(validatePlayerName('   ')).toBe(false);
             expect(validatePlayerName('Juan')).toBe(true);
@@ -216,16 +165,61 @@ describe('Whack-a-Mole Game', () => {
         });
 
         test('duración debe estar en rango válido', () => {
-            function validateDuration(seconds) {
-                const validDurations = [60, 120, 180, 240, 300];
-                return validDurations.includes(seconds);
-            }
-
             expect(validateDuration(60)).toBe(true);
             expect(validateDuration(180)).toBe(true);
             expect(validateDuration(300)).toBe(true);
             expect(validateDuration(30)).toBe(false);
             expect(validateDuration(600)).toBe(false);
+        });
+    });
+
+    describe('Funciones adicionales', () => {
+        test('formatTime con valores límite', () => {
+            expect(formatTime(0)).toBe('0:00');
+            expect(formatTime(3599)).toBe('59:59');
+            expect(formatTime(3600)).toBe('60:00');
+        });
+
+        test('getDifficulty con valores extremos', () => {
+            expect(getDifficulty(-0.1)).toBe('easy');
+            expect(getDifficulty(0.249)).toBe('easy');
+            expect(getDifficulty(0.251)).toBe('medium');
+            expect(getDifficulty(0.999)).toBe('insane');
+        });
+
+        test('getBombChance con dificultad inválida retorna default', () => {
+            expect(getBombChance('unknown')).toBe(0.15);
+        });
+
+        test('getMaxMoles con dificultad inválida retorna default', () => {
+            expect(getMaxMoles('unknown')).toBe(1);
+        });
+
+        test('sortAndLimitScores no modifica array original', () => {
+            const original = [
+                { player: 'A', score: 50 },
+                { player: 'B', score: 100 }
+            ];
+            const copy = [...original];
+            
+            sortAndLimitScores(original);
+            
+            expect(original).toEqual(copy);
+        });
+
+        test('escapeHTML con string vacío', () => {
+            expect(escapeHTML('')).toBe('');
+        });
+
+        test('getScores retorna copia independiente', () => {
+            const testScores = [{ player: 'Test', score: 100 }];
+            localStorage.setItem('whackamole_scores', JSON.stringify(testScores));
+            
+            const scores1 = getScores();
+            const scores2 = getScores();
+            
+            scores1[0].score = 999;
+            expect(scores2[0].score).toBe(100);
         });
     });
 });

@@ -100,6 +100,10 @@ python3 -m http.server 8080
 
 ## 🧪 Testing
 
+El proyecto utiliza **Jest** con entorno **jsdom** para pruebas unitarias.
+
+### Comandos
+
 ```bash
 # Ejecutar todos los tests
 npm test
@@ -109,6 +113,46 @@ npm run test:watch
 
 # Ver cobertura de código
 npm test -- --coverage
+```
+
+### Cobertura Actual
+
+| Métrica | Porcentaje |
+|---------|------------|
+| Statements | ~11% |
+| Branches | ~23% |
+| Functions | ~23% |
+| Lines | ~10% |
+
+> **Nota**: La cobertura cubre las funciones utilitarias puras exportadas. Las funciones de manipulación del DOM no están testeadas ya que requieren interacción del usuario.
+
+### Funciones Testeables
+
+El archivo `game.js` exporta las siguientes funciones puras para testing:
+
+| Función | Descripción |
+|---------|-------------|
+| `formatTime(seconds)` | Formatea segundos a `M:SS` |
+| `getDifficulty(ratio)` | Calcula dificultad según progreso |
+| `getBombChance(difficulty)` | Probabilidad de bomba |
+| `getMaxMoles(difficulty)` | Topos simultáneos máximos |
+| `validatePlayerName(name)` | Valida nombre no vacío |
+| `validateDuration(seconds)` | Valida duración permitida |
+| `getPointsPerHit(difficulty)` | Puntos por golpe |
+| `sortAndLimitScores(scores)` | Ordena y limita top 10 |
+| `escapeHTML(str)` | Escapa caracteres HTML |
+| `getScores()` | Obtiene scores de localStorage |
+
+### Tests Incluidos (20 casos)
+
+```
+Whack-a-Mole Game
+├── Funciones utilitarias (2)
+├── localStorage - Ranking (3)
+├── Configuración de dificultad (3)
+├── Sistema de puntuación (3)
+├── Validación de entrada (2)
+└── Funciones adicionales (7)
 ```
 
 ## 🔍 Linting
