@@ -206,7 +206,7 @@ describe('Whack-a-Mole Game', () => {
     describe('Validación de entrada', () => {
         test('nombre de jugador no puede estar vacío', () => {
             function validatePlayerName(name) {
-                return name && name.trim().length > 0;
+                return !!(name && name.trim().length > 0);
             }
 
             expect(validatePlayerName('')).toBe(false);

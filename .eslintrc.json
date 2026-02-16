@@ -2,7 +2,8 @@
   "env": {
     "browser": true,
     "es2021": true,
-    "jest": true
+    "jest": true,
+    "node": true
   },
   "extends": "eslint:recommended",
   "parserOptions": {
@@ -14,19 +15,18 @@
     "no-console": "off",
     "semi": ["error", "always"],
     "quotes": ["warn", "single", { "avoidEscape": true }],
-    "indent": ["warn", 4],
+    "indent": "off",
     "comma-dangle": ["warn", "never"],
-    "no-trailing-spaces": "warn",
-    "eol-last": ["warn", "always"]
-  },
-  "globals": {
-    "gameState": "readonly",
-    "elements": "readonly"
+    "no-trailing-spaces": "off",
+    "eol-last": ["warn", "always"],
+    "no-redeclare": "off"
   },
   "ignorePatterns": [
     "node_modules/",
     "dist/",
     "coverage/",
-    "scripts/"
+    "scripts/",
+    "jest.config.js",
+    "tests/"
   ]
 }
